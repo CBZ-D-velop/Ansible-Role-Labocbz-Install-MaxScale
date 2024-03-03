@@ -1,1 +1,4 @@
 ---
+inv_prepare_host__system_users:
+  - login: "mysql"
+    group: "mysql"

@@ -8,9 +8,9 @@ driver:
   name: "docker"
 
 platforms:
-  - name: "molecule-cicd-debian-11-instance-1-my-new-role"
+  - name: "molecule-cicd-debian-11-instance-1-install-maxscale"
     image: "${NEXUS_REPOS_DOCKER_REGISTRY}/${DOCKER_IMAGE_DEBIAN_11_ANSIBLE}"
-    hostname: "molecule-cicd-debian-11-instance-1-my-new-role"
+    hostname: "molecule-cicd-debian-11-instance-1-install-maxscale"
     #published_ports:
     #  - "0.0.0.0:8181:8181/tcp"
     privileged: true
@@ -25,11 +25,11 @@ platforms:
     cgroup_manager: "cgroupfs"
     storage_driver: "overlay2"
     networks:
-      - name: "molecule-cicd-debian-11-my-new-role"
+      - name: "molecule-cicd-debian-11-install-maxscale"
 
-  - name: "molecule-cicd-debian-11-instance-2-my-new-role"
+  - name: "molecule-cicd-debian-11-instance-2-install-maxscale"
     image: "${NEXUS_REPOS_DOCKER_REGISTRY}/${DOCKER_IMAGE_DEBIAN_11_ANSIBLE}"
-    hostname: "molecule-cicd-debian-11-instance-2-my-new-role"
+    hostname: "molecule-cicd-debian-11-instance-2-install-maxscale"
     #published_ports:
     #  - "0.0.0.0:8181:8181/tcp"
     privileged: true
@@ -44,11 +44,11 @@ platforms:
     cgroup_manager: "cgroupfs"
     storage_driver: "overlay2"
     networks:
-      - name: "molecule-cicd-debian-11-my-new-role"
+      - name: "molecule-cicd-debian-11-install-maxscale"
 
-  - name: "molecule-cicd-debian-11-instance-3-my-new-role"
+  - name: "molecule-cicd-debian-11-instance-3-install-maxscale"
     image: "${NEXUS_REPOS_DOCKER_REGISTRY}/${DOCKER_IMAGE_DEBIAN_11_ANSIBLE}"
-    hostname: "molecule-cicd-debian-11-instance-3-my-new-role"
+    hostname: "molecule-cicd-debian-11-instance-3-install-maxscale"
     #published_ports:
     #  - "0.0.0.0:8181:8181/tcp"
     privileged: true
@@ -63,7 +63,7 @@ platforms:
     cgroup_manager: "cgroupfs"
     storage_driver: "overlay2"
     networks:
-      - name: "molecule-cicd-debian-11-my-new-role"
+      - name: "molecule-cicd-debian-11-install-maxscale"
 
 
 provisioner:

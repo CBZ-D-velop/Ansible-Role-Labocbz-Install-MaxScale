@@ -2,3 +2,8 @@
 - name: "labocbz.prepare_host"
   src: "https://github.com/CBZ-D-velop/Ansible-Role-Labocbz-Prepare-Host.git"
 
+- name: "labocbz.add_certificates"
+  src: "https://github.com/CBZ-D-velop/Ansible-Role-Labocbz-Add-Certificates.git"
+
+- name: "labocbz.install_mariadb"
+  src: "https://github.com/CBZ-D-velop/Ansible-Role-Labocbz-Install-MariaDB.git"
