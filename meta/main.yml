@@ -1,8 +1,8 @@
 galaxy_info:
   author: "Lord Robin Crombez"
   namespace: "labocbz"
-  role_name: "my_new_role"
-  description: "This is a limited description for the meta."
+  role_name: "install_maxscale"
+  description: "An ansible role to install MaxScale on your hosts."
   company: "Labo-CBZ"
 
   # If the issue tracker for your role is not on github, uncomment the

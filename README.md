@@ -1,4 +1,4 @@
-# Ansible role: labocbz.my_new_role
+# Ansible role: labocbz.install_maxscale
 
 ![Licence Status](https://img.shields.io/badge/licence-MIT-brightgreen)
 ![CI Status](https://img.shields.io/badge/CI-success-brightgreen)
@@ -16,7 +16,7 @@
 ![Tag: Mariadb](https://img.shields.io/badge/Tech-Mariadb-orange)
 ![Tag: MaxScale](https://img.shields.io/badge/Tech-MaxScale-orange)
 
-This is a limited description for the meta.
+An ansible role to install MaxScale on your hosts.
 
 ## Folder structure
 
