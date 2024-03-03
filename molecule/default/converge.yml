@@ -1,0 +1,10 @@
+---
+- name: "Converge"
+  hosts: "local"
+  tasks:
+
+    - name: "Include labocbz.my_new_role"
+      tags:
+        - "labocbz.my_new_role"
+      ansible.builtin.include_role:
+        name: "labocbz.my_new_role"
