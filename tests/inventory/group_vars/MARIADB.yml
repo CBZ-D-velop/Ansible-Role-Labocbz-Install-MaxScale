@@ -1,7 +1,4 @@
 ---
-inv_prepare_host__system_users:
-  - login: "mysql"
-    group: "mysql"
 
 inv_install_mariadb__confs_path: "/etc/mysql"
 inv_install_mariadb__config_path: "{{ inv_install_mariadb__confs_path }}/mariadb.conf.d"

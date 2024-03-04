@@ -1,1 +1,19 @@
----
+- name: "Enable and start MaxScale"
+  register: install_maxscale__service_status
+  changed_when: not install_maxscale__service_status.state != "started"
+  throttle: 1
+  ansible.builtin.service:
+    name: "maxscale"
+    state: "started"
+    daemon_reload: true
+    enabled: yes
+
+- name: "Restart MaxScale"
+  register: install_maxscale__service_status
+  changed_when: not install_maxscale__service_status.state != "restarted"
+  throttle: 1
+  ansible.builtin.service:
+    name: "maxscale"
+    state: "restarted"
+    daemon_reload: true
+    enabled: yes

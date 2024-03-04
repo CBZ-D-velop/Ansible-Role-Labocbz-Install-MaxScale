@@ -1,0 +1,77 @@
+##############################
+#                            #
+# Ansible / Tower managed on #
+#                            #
+##############################
+
+# Globals
+[maxscale]
+threads={{ install_maxscale__threads }}
+threads_max={{ install_maxscale__threads_max }}
+admin_enabled={{ install_maxscale__admin_enabled | lower }}
+{% if install_maxscale__admin_enabled | default(false) %}
+admin_host={{ install_maxscale__admin_host }}
+admin_port={{ install_maxscale__admin_port }}
+admin_secure_gui={{ install_maxscale__admin_secure_gui | lower }}
+{% if install_maxscale__admin_secure_gui | default(false) %}
+admin_ssl_ca={{ install_maxscale__admin_ssl_ca }}
+admin_ssl_cert={{ install_maxscale__admin_ssl_cert }}
+admin_ssl_key={{ install_maxscale__admin_ssl_key }}
+{% endif %}
+{% endif %}
+
+# Servers
+{% for server in install_maxscale__mariadb_servers %}
+[{{ server.name }}]
+type=server
+address={{ server.address }}
+port={{ server.port }}
+protocol=MariaDBBackend
+{% if install_maxscale__mariadb_server_ssl | default(false) %}
+ssl=true
+ssl_ca={{ install_maxscale__mariadb_server_ssl_ca }}
+{% if install_maxscale__mariadb_server_ssl_client_auth | default(false) %}
+ssl_cert={{ install_maxscale__mariadb_server_ssl_cert }}
+ssl_key={{ install_maxscale__mariadb_server_ssl_key }}
+{% endif %}
+{% endif %}
+priority={{ loop.index -1 }}
+
+{% endfor %}
+
+# Monitoring for the servers
+[DatabaseMonitor]
+type=monitor
+module={{ install_maxscale__mariadb_server_type }}
+user={{ install_maxscale__database_user_login }}
+password={{ install_maxscale__database_user_password }}
+servers={% for server in install_maxscale__mariadb_servers %}{{ server.name }}{% if not loop.last %},{% endif %}{% endfor %}
+
+
+# Router service
+[RouterService]
+type=service
+router=readwritesplit
+servers={% for server in install_maxscale__mariadb_servers %}{{ server.name }}{% if not loop.last %},{% endif %}{% endfor %}
+
+user={{ install_maxscale__database_user_login }}
+password={{ install_maxscale__database_user_password }}
+
+# Cluster listener
+[DatabaseListener]
+type=listener
+service=RouterService
+protocol=MariaDBClient
+port={{ install_maxscale__listener_server_port }}
+address={{ install_maxscale__listener_server_address }}
+{% if install_maxscale__listener_server_ssl | default(false) %}
+ssl=true
+ssl_version={{ install_maxscale__mariadb_server_ssl_version }}
+ssl_verify_peer_certificate={{ install_maxscale__mariadb_server_ssl_verify_peer_certificate | lower }}
+ssl_verify_peer_host={{ install_maxscale__mariadb_server_ssl_verify_peer_host | lower }}
+ssl_ca={{ install_maxscale__listener_server_ssl_ca }}
+{% if install_maxscale__listener_server_ssl_client_auth | default(false) %}
+ssl_cert={{ install_maxscale__listener_server_ssl_cert }}
+ssl_key={{ install_maxscale__listener_server_ssl_key }}
+{% endif %}
+{% endif %}

@@ -5,3 +5,44 @@
   hosts: "cicd-debian-12"
   gather_facts: true
   tasks:
+
+    - name: "Get MaxScale service current state"
+      register: install_maxscale__service_status
+      failed_when: not install_maxscale__service_status.status.ActiveState == 'active'
+      ansible.builtin.systemd:
+        name: "maxscale"
+
+    - name: "Check databases, with the MaxScale proxy and user"
+      register: output
+      changed_when: output.rc != 0
+      vars:
+        ssl_option: "{{ '' if not inv_install_maxscale__listener_server_ssl | default(false) else '--ssl --ssl-ca=' ~ inv_install_maxscale__listener_server_ssl_ca }}"
+        mtls_options: "{{ '' if not inv_install_maxscale__mariadb_server_ssl_client_auth | default(false) else '--ssl-cert=' ~ inv_install_maxscale__listener_server_ssl_cert ~ ' --ssl-key=' ~ inv_install_maxscale__listener_server_ssl_key }}"
+        host_options: "-h localhost -P {{ inv_install_maxscale__listener_server_port }}"
+      ansible.builtin.shell: |
+        mysql {{ host_options | default('') }} {{ ssl_option | default('') }} {{ mtls_options | default('') }} -u {{ inv_install_maxscale__database_user_login }} --password='{{ inv_install_maxscale__database_user_password }}' --execute="SHOW DATABASES;"
+
+    - name: "Check MaxScale admin GUI"
+      when: (inv_install_maxscale__admin_enabled | default(false)) and (inv_install_maxscale__admin_gui | default(false))
+      block:
+        - name: "Check MaxScale connectivity"
+          ansible.builtin.wait_for:
+            host: "{{ inventory_hostname }}"
+            port: "{{ inv_install_maxscale__admin_port }}"
+            timeout: 120
+
+        - name: "Check MaxScale HTTP"
+          register: result
+          when: not (inv_install_maxscale__admin_secure_gui | default(false))
+          failed_when: result.status != 200
+          ansible.builtin.uri:
+            url: "http://{{ inventory_hostname }}:{{ inv_install_maxscale__admin_port }}/"
+            method: "GET"
+
+        - name: "Check MaxScale HTTPS"
+          when: inv_install_maxscale__admin_secure_gui | default(false)
+          register: result
+          failed_when: result.status != 200
+          ansible.builtin.uri:
+            url: "https://{{ inventory_hostname }}:{{ inv_install_maxscale__admin_port }}/"
+            method: "GET"

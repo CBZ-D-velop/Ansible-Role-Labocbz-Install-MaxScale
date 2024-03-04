@@ -1,1 +1,99 @@
 ---
+- name: "Install MaxScale"
+  notify:
+    - "Enable and start MaxScale"
+    - "Restart MaxScale"
+  block:
+    - name: "Load Mariadb repos"
+      register: output
+      changed_when: output.rc != 0
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          curl -sS https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | sudo bash
+          chown maxscale:maxscale -R /etc/maxscale*
+        executable: /bin/bash
+
+    - name: "Install MaxScale"
+      notify: "Enable and start MaxScale"
+      ansible.builtin.package:
+        update_cache: true
+        name:
+          - "maxscale"
+
+- name: "Prepare Databases"
+  run_once: true
+  block:
+    - name: "Create MaxScale user: {{ install_maxscale__database_user_login }}"
+      register: output
+      changed_when: false
+      failed_when: false
+      loop:
+        - "localhost"
+        - "127.0.0.1"
+        - "%"
+      loop_control:
+        loop_var: address
+      ansible.builtin.command: |
+        mysql -u {{ install_maxscale__admin_login }} --password='{{ install_maxscale__admin_password }}' --execute="CREATE USER '{{ install_maxscale__database_user_login }}'@'{{ address }}' IDENTIFIED BY '{{ install_maxscale__database_user_password }}';"
+
+    - name: "Update remote connexions for MaxScale user"
+      register: output
+      changed_when: false
+      failed_when: false
+      loop: "{{ install_maxscale__mariadb_servers }}"
+      loop_control:
+        loop_var: server
+      ansible.builtin.command: |
+        mysql -u {{ install_maxscale__admin_login }} --password='{{ install_maxscale__admin_password }}' --execute="CREATE USER '{{ install_maxscale__database_user_login }}'@'{{ server.address }}' IDENTIFIED BY '{{ install_maxscale__database_user_password }}';"
+
+    - name: "Set permissions, local"
+      loop:
+        - "localhost"
+        - "127.0.0.1"
+        - "%"
+      loop_control:
+        loop_var: address
+      register: output
+      changed_when: output.rc != 0
+      ansible.builtin.shell: |
+        mysql -u {{ install_maxscale__admin_login }} --password='{{ install_maxscale__admin_password }}' --execute="GRANT SELECT on mysql.db to '{{ install_maxscale__database_user_login }}'@'{{ address }}';"
+        mysql -u {{ install_maxscale__admin_login }} --password='{{ install_maxscale__admin_password }}' --execute="GRANT SELECT on mysql.user to '{{ install_maxscale__database_user_login }}'@'{{ address }}';"
+        mysql -u {{ install_maxscale__admin_login }} --password='{{ install_maxscale__admin_password }}' --execute="GRANT SHOW DATABASES on *.* to '{{ install_maxscale__database_user_login }}'@'{{ address }}';"
+        mysql -u {{ install_maxscale__admin_login }} --password='{{ install_maxscale__admin_password }}' --execute="GRANT SELECT on mysql.tables_priv to '{{ install_maxscale__database_user_login }}'@'{{ address }}';"
+        mysql -u {{ install_maxscale__admin_login }} --password='{{ install_maxscale__admin_password }}' --execute="GRANT SELECT on mysql.roles_mapping to '{{ install_maxscale__database_user_login }}'@'{{ address }}';"
+        mysql -u {{ install_maxscale__admin_login }} --password='{{ install_maxscale__admin_password }}' --execute="GRANT SELECT on mysql.procs_priv to '{{ install_maxscale__database_user_login }}'@'{{ address }}';"
+        mysql -u {{ install_maxscale__admin_login }} --password='{{ install_maxscale__admin_password }}' --execute="GRANT SELECT on mysql.columns_priv to '{{ install_maxscale__database_user_login }}'@'{{ address }}';"
+        mysql -u {{ install_maxscale__admin_login }} --password='{{ install_maxscale__admin_password }}' --execute="GRANT SELECT on mysql.proxies_priv to '{{ install_maxscale__database_user_login }}'@'{{ address }}';"
+
+    - name: "Set permissions, remote"
+      loop: "{{ install_maxscale__mariadb_servers }}"
+      loop_control:
+        loop_var: server
+      register: output
+      changed_when: output.rc != 0
+      ansible.builtin.shell: |
+        mysql -u {{ install_maxscale__admin_login }} --password='{{ install_maxscale__admin_password }}' --execute="GRANT SELECT on mysql.db to '{{ install_maxscale__database_user_login }}'@'{{ server.address }}';"
+        mysql -u {{ install_maxscale__admin_login }} --password='{{ install_maxscale__admin_password }}' --execute="GRANT SELECT on mysql.user to '{{ install_maxscale__database_user_login }}'@'{{ server.address }}';"
+        mysql -u {{ install_maxscale__admin_login }} --password='{{ install_maxscale__admin_password }}' --execute="GRANT SHOW DATABASES on *.* to '{{ install_maxscale__database_user_login }}'@'{{ server.address }}';"
+        mysql -u {{ install_maxscale__admin_login }} --password='{{ install_maxscale__admin_password }}' --execute="GRANT SELECT on mysql.tables_priv to '{{ install_maxscale__database_user_login }}'@'{{ server.address }}';"
+        mysql -u {{ install_maxscale__admin_login }} --password='{{ install_maxscale__admin_password }}' --execute="GRANT SELECT on mysql.roles_mapping to '{{ install_maxscale__database_user_login }}'@'{{ server.address }}';"
+        mysql -u {{ install_maxscale__admin_login }} --password='{{ install_maxscale__admin_password }}' --execute="GRANT SELECT on mysql.procs_priv to '{{ install_maxscale__database_user_login }}'@'{{ server.address }}';"
+        mysql -u {{ install_maxscale__admin_login }} --password='{{ install_maxscale__admin_password }}' --execute="GRANT SELECT on mysql.columns_priv to '{{ install_maxscale__database_user_login }}'@'{{ server.address }}';"
+        mysql -u {{ install_maxscale__admin_login }} --password='{{ install_maxscale__admin_password }}' --execute="GRANT SELECT on mysql.proxies_priv to '{{ install_maxscale__database_user_login }}'@'{{ server.address }}';"
+
+    - name: "Flush privileges"
+      register: output
+      changed_when: output.rc != 0
+      ansible.builtin.command: |
+        mysql -u {{ install_maxscale__admin_login }} --password='{{ install_maxscale__admin_password }}' --execute="FLUSH PRIVILEGES;"
+
+- name: "Impor the configuration"
+  notify: "Restart MaxScale"
+  ansible.builtin.template:
+    src: "templates/maxscale.cnf.j2"
+    dest: "/etc/maxscale.cnf"
+    owner: "maxscale"
+    group: "maxscale"
+    mode: "740"
+    lstrip_blocks: yes
