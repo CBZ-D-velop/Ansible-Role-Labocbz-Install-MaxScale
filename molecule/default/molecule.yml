@@ -11,8 +11,8 @@ platforms:
   - name: "molecule-local-instance-1-install-maxscale"
     image: "robincbz/debian-12-ansible:latest"
     hostname: "molecule-local-instance-1-install-maxscale"
-    #published_ports:
-    #  - "0.0.0.0:8181:8181/tcp"
+    published_ports:
+      - "0.0.0.0:8989:8989/tcp"
     privileged: true
     pre_build_image: true
     command: "/sbin/init"
@@ -30,8 +30,8 @@ platforms:
   - name: "molecule-local-instance-2-install-maxscale"
     image: "robincbz/debian-12-ansible:latest"
     hostname: "molecule-local-instance-2-install-maxscale"
-    #published_ports:
-    #  - "0.0.0.0:8181:8181/tcp"
+    published_ports:
+      - "0.0.0.0:8990:8989/tcp"
     privileged: true
     pre_build_image: true
     command: "/sbin/init"
@@ -49,8 +49,8 @@ platforms:
   - name: "molecule-local-instance-3-install-maxscale"
     image: "robincbz/debian-12-ansible:latest"
     hostname: "molecule-local-instance-3-install-maxscale"
-    #published_ports:
-    #  - "0.0.0.0:8181:8181/tcp"
+    published_ports:
+      - "0.0.0.0:8991:8989/tcp"
     privileged: true
     pre_build_image: true
     command: "/sbin/init"
