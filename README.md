@@ -281,6 +281,14 @@ Here you can put your change to keep a trace of your work and decisions.
 * Added support for Ubuntu 22
 * Added new CI and SonarQube
 
+### 2024-05-19: New CI
+
+* Added Markdown lint to the CICD
+* Rework all Docker images
+* Change CICD vars convention
+* New workers
+* Removed all automation based on branch
+
 ## Authors
 
 * Lord Robin Crombez
@@ -291,6 +299,3 @@ Here you can put your change to keep a trace of your work and decisions.
 * [Ansible Molecule documentation](https://molecule.readthedocs.io/)
 * [Deploy MaxScale 22.08 with Galera Monitor and Read Connection Router](https://mariadb.com/docs/server/deploy/maxscale-galeramon-readconnroute-mxs22-08/)
 * [SETTING UP MARIADB GALERA CLUSTER](https://mariadb.com/resources/blog/getting-started-with-mariadb-galera-and-mariadb-maxscale-on-centos/)
-
-
-mysql -h 172.26.0.3 -P 3307 --ssl --ssl-ca=/etc/maxscale/ssl/my-mariadb-cluster.domain.tld/ca-chain.pem.crt --ssl-cert=/etc/maxscale/ssl/my-mariadb-cluster.domain.tld/my-mariadb-cluster.domain.tld.pem.crt --ssl-key=/etc/maxscale/ssl/my-mariadb-cluster.domain.tld/my-mariadb-cluster.domain.tld.pem.key -u maxscale --password='PN$^L8zPM8d58Z*wm@3q'

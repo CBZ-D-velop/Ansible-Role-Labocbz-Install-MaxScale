@@ -9,7 +9,7 @@ driver:
 
 platforms:
   - name: "molecule-local-instance-1-install-maxscale"
-    image: "robincbz/debian-12-ansible:latest"
+    image: "labocbz/ansibletest-debian-12:latest"
     hostname: "molecule-local-instance-1-install-maxscale"
     published_ports:
       - "0.0.0.0:8989:8989/tcp"
@@ -28,7 +28,7 @@ platforms:
       - name: "molecule-local-install-maxscale"
 
   - name: "molecule-local-instance-2-install-maxscale"
-    image: "robincbz/debian-12-ansible:latest"
+    image: "labocbz/ansibletest-debian-12:latest"
     hostname: "molecule-local-instance-2-install-maxscale"
     published_ports:
       - "0.0.0.0:8990:8989/tcp"
@@ -47,7 +47,7 @@ platforms:
       - name: "molecule-local-install-maxscale"
 
   - name: "molecule-local-instance-3-install-maxscale"
-    image: "robincbz/debian-12-ansible:latest"
+    image: "labocbz/ansibletest-debian-12:latest"
     hostname: "molecule-local-instance-3-install-maxscale"
     published_ports:
       - "0.0.0.0:8991:8989/tcp"
@@ -75,7 +75,7 @@ provisioner:
       host_vars: "../../tests/inventory/host_vars/"
   options:
     extra-vars: "@./tests/tower/tower.yml"
-  log: ${MOLECULE_ANSIBLE_LOG:-true}
+  log: true
   env:
     ANSIBLE_CONFIG: "../../.ansible.cfg"
     ANSIBLE_FORCE_COLOR: "true"
