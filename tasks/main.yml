@@ -16,7 +16,11 @@
 
     - name: "Install MaxScale"
       notify: "Enable and start MaxScale"
-      ansible.builtin.package:
+      retries: 3
+  delay: 10
+  until: output is success
+  register: output
+  ansible.builtin.package:
         update_cache: true
         name:
           - "maxscale"
